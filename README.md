@@ -1,5 +1,10 @@
 # idrive7-apps
 
+> **Fork TNM** de [nickgcode/idrive7-apps](https://github.com/nickgcode/idrive7-apps) : identique a l'original,
+> sauf **G's Dash**, qui affiche le logo **TNM** (`apps/ng_gsdash/images/logo_custom.png`, 672x160) au centre
+> du compteur, quel que soit le style. Si l'image manque ou est illisible, l'app reprend son logo d'origine.
+> Installation : Store -> Settings -> Add source -> `yahyaMIf/idrive7-apps`.
+
 Custom apps for BMW iDrive 7 head units. You install and update them from the car through
 robertn_store, which builds each app on the head unit from this repository.
 

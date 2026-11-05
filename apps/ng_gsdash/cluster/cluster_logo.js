@@ -91,6 +91,9 @@ const { loadClient, trusted, mapLayers, ownLayers, drawing, guideValue, FRESH_MS
 
 const TARGET = 'map', MAP_W = 1088, MAP_H = 480;      // the only target used
 const LOGO_W = 448, LOGO_H = 240, BADGE_H = 184;     // the regular logo, 1:1
+// TNM fork: the owner's own logo (images/logo_custom.png) in every look, as a baked picture;
+// 672x160 is the same pixel count (and renderer budget) as the 448x240 logo, wider for a wordmark
+const CUSTOM = 'custom', CUSTOM_W = 672, CUSTOM_H = 160;
 const CELL = 16;                                     // the pixel emblem's cell on the cluster
 const FPS_STILL = 1, FPS_ANIM = 12;                  // the image's write ceiling (fps: writes a second at most)
 const POLL_MS = 1000, HOLD_MS = 3000, YIELD_MS = 3000, LOAD_RETRY_MS = 30000;
@@ -413,6 +416,8 @@ class ClusterLogo {
     }
     /** 0.13.1: the layer the look wants: { kind 'fx' | 'baked' | 'regular' | 'pixel', look, key } */
     _wanted() {
+        // TNM fork: the owner's logo first, whatever the look; if it is missing or unusable, upstream's choice
+        if (!this.bakedBad[CUSTOM] && this.images && typeof this.images.baked === 'function') return { kind: 'baked', look: CUSTOM, key: 'baked:' + CUSTOM };
         const look = this.look, k = this.pixel ? 'pixel' : CORE.kindOf(look);
         if (k === 'pixel') return { kind: 'pixel', look: 'pixel', key: 'pixel' };
         if (k === 'fx') {
@@ -465,7 +470,8 @@ class ClusterLogo {
         if (kind === 'baked') {
             try { img = this.images.baked(w.look); } catch (e) { img = null; }
             if (img && !img.d && img.data) img = { w: img.w, h: img.h, d: img.data };   // kit/png's decode: { w, h, data }
-            if (!img || img.w !== LOGO_W || img.h !== LOGO_H || !img.d || img.d.length !== LOGO_W * LOGO_H * 4) {
+            const ew = w.look === CUSTOM ? CUSTOM_W : LOGO_W, eh = w.look === CUSTOM ? CUSTOM_H : LOGO_H;   // TNM fork
+            if (!img || img.w !== ew || img.h !== eh || !img.d || img.d.length !== ew * eh * 4) {
                 this.bakedBad[w.look] = true;
                 this.log.warn('cluster logo: ' + CORE.PNG_OF(w.look) + ' not usable - the regular logo instead');
                 return this._make({ kind: 'regular', look: '', key: 'regular' }, vis);
