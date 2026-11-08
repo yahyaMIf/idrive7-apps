@@ -470,6 +470,9 @@ class ClusterLogo {
         if (kind === 'baked') {
             try { img = this.images.baked(w.look); } catch (e) { img = null; }
             if (img && !img.d && img.data) img = { w: img.w, h: img.h, d: img.data };   // kit/png's decode: { w, h, data }
+            // TNM fork: kit/png decodes to a Uint8Array, but cluster-render's client copies the pixels with
+            // Buffer#copy (pixels(): px.copy) - send a Buffer view of the same memory (no copy), as regularImage() does
+            if (img && img.d && !Buffer.isBuffer(img.d)) img = { w: img.w, h: img.h, d: Buffer.from(img.d.buffer, img.d.byteOffset, img.d.length) };
             const ew = w.look === CUSTOM ? CUSTOM_W : LOGO_W, eh = w.look === CUSTOM ? CUSTOM_H : LOGO_H;   // TNM fork
             if (!img || img.w !== ew || img.h !== eh || !img.d || img.d.length !== ew * eh * 4) {
                 this.bakedBad[w.look] = true;
